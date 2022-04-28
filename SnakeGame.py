@@ -21,7 +21,7 @@ from pygame.locals import *
 from settingsSnakeFun import *
 
 def main():
-	global CLOCK, SCREEN, FONT
+	global CLOCK, SCREEN, FONT 
 
 	pygame.init()
 	CLOCK = pygame.time.Clock()
@@ -41,17 +41,18 @@ def runGame():
 	startx = random.randint(5, cell_width - 6)
 	starty = random.randint(5, cell_height - 6)
 	global worm
+	global FPS
+	FPS_trigger = False
 	worm = [{'x' : startx, 'y' : starty}, {'x': startx - 1, 'y':starty}, {'x':startx - 2, 'y':starty}]
 	direction = UP
-	FPS = 2
 
 	food = getRandomLocation()
-
+                  
 	while True:
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				terminate()
-			if event.type == KEYDOWN:
+			elif event.type == KEYDOWN:
 				if (event.key == K_LEFT or event.key == K_a) and direction != RIGHT:
 					direction = LEFT
 				elif (event.key == K_RIGHT or event.key == K_d) and direction != LEFT:
@@ -63,11 +64,15 @@ def runGame():
 				elif event.key == K_ESCAPE:
 					terminate()
 				if (event.key == K_SPACE):
-					FPS = 5
-			if event.type == KEYUP:
-				if (event.key == K_SPACE):
-					FPS = 2
-
+					FPS_trigger = True   
+			if (event.type == KEYUP):
+				if(event.key == K_SPACE):
+					FPS_trigger = False 
+			if FPS_trigger == True:
+				FPS = 8
+			elif FPS_trigger == False:
+				FPS = 2	
+				
 		#To check Collision with edges
 		if worm[HEAD]['x'] == -1 or worm[HEAD]['x'] == cell_width or worm[HEAD]['y'] == -1 or worm[HEAD]['y'] == cell_height:
 			return
