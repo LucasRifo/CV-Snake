@@ -9,6 +9,8 @@ up = 0x26 #VK_UP
 down = 0x28 #VK_DOWN
 left = 0x25 #VK_LEFT
 right = 0x27 #VK_RIGHT
+space = 0x20 #VK_SPACE
+ctrl = 0x11 #VK_CTRL
 
 # C struct redefinitions
 PUL = ctypes.POINTER(ctypes.c_ulong)
