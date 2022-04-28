@@ -49,5 +49,6 @@ UP = 'up'
 DOWN = 'down'
 LEFT = 'left'
 RIGHT = 'right'
+SPACE = "space"
 
 HEAD = 0 #Index of the snake's head
