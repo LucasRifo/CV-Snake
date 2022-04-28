@@ -6,6 +6,34 @@ import sys
 from directKeys import up, left, down, right, space
 from directKeys import PressKey, ReleaseKey
 
+def extract_contour(contours):
+    """
+    Extract the countours from the list of detected objects
+        Parameters
+        ----------
+        contours: List
+            List of detected objects
+
+        Return
+        ------
+        contours: List
+            List of each detected object's contours
+     """
+    if len(contours) == 2:
+        contours = contours[0]
+            
+    elif len(contours) == 3:
+        contours = contours[1]
+
+    else:
+        raise Exception(("Contours tuple must have length 2 or 3," 
+            "otherwise OpenCV changed their cv2.findContours return "
+            "signature. Refer to OpenCV's documentation "
+            "in that case"))
+
+    return contours
+    
+
 def angle(center_of_frame: list, center: list):
     """
     Receives the coordinates of a detected object's centre and
@@ -22,8 +50,7 @@ def angle(center_of_frame: list, center: list):
         angle: float
             Relative angle from the window's centre to the
             object's centre
-    """
-
+    """      
     if center_of_frame[0] == center[0]:  # angulo 90 o 270
         if center_of_frame[1] > center[1]:
             angle = 90
@@ -149,32 +176,6 @@ while True:
 
     center_of_frame = [width/2,height/2]
 
-    def extract_contour(contours):
-        """
-        Extract the countours from the list of detected objects
-            Parameters
-            ----------
-            contours: List
-                List of detected objects
-
-            Return
-            ------
-            contours: List
-                List of each detected object's contours
-        """
-        if len(contours) == 2:
-            contours = contours[0]
-            
-        elif len(contours) == 3:
-            contours = contours[1]
-
-        else:
-            raise Exception(("Contours tuple must have length 2 or 3," 
-            "otherwise OpenCV changed their cv2.findContours return "
-            "signature. Refer to OpenCV's documentation "
-            "in that case"))
-
-        return contours
             
     """
     Finds contours in the frame to find the shape outline of the
@@ -220,10 +221,17 @@ while True:
             cv2.circle(grabbed_frame, (int(x), int(y)), int(r),
                        (0, 255, 0), 2)
             cv2.circle(grabbed_frame, centre, 5, (0, 255, 0), -1)
-            pyautogui.press("space")
-            current_key.add(space)
-            keyPressed = True
-
+            if not space:
+                pyautogui.keyDown("space")
+                current_key.add(space)
+                keyPressed = True
+                space = True
+        else:    
+            space = False
+    print(space)  
+    if not space:
+        pyautogui.keyUp("space")
+                                                                                                                                                                                                                                                       
     """
     Starts looping if at least one green contour or centre is
     found in the frame"""
@@ -286,12 +294,12 @@ while True:
     grabbed_frame_copy = cv2.rectangle(grabbed_frame_copy,(0,height//2 - window_size //2),(width,height//2 + window_size //2),(255,0,0),2)
     cv2.imshow("grabbed_frame", grabbed_frame_copy)
 
-
     #Release all pressed keys to avoid any glitch
     if not keyPressed and current_key!= 0:
         for key in current_key:
-            ReleaseKey(key)
-            current_key=set()
+            if key != "space":
+                ReleaseKey(key)
+                current_key=set()
     #We use hexadecimal value 0xFF here because when we will press q then it can return other values also if your numlock is activated
     k = cv2.waitKey(1) & 0xFF
 
