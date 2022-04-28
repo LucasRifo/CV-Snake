@@ -43,6 +43,7 @@ def runGame():
 	global worm
 	worm = [{'x' : startx, 'y' : starty}, {'x': startx - 1, 'y':starty}, {'x':startx - 2, 'y':starty}]
 	direction = UP
+	FPS = 2
 
 	food = getRandomLocation()
 
@@ -50,7 +51,7 @@ def runGame():
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				terminate()
-			elif event.type == KEYDOWN:
+			if event.type == KEYDOWN:
 				if (event.key == K_LEFT or event.key == K_a) and direction != RIGHT:
 					direction = LEFT
 				elif (event.key == K_RIGHT or event.key == K_d) and direction != LEFT:
@@ -61,6 +62,11 @@ def runGame():
 					direction = DOWN
 				elif event.key == K_ESCAPE:
 					terminate()
+				if (event.key == K_SPACE):
+					FPS = 5
+			if event.type == KEYUP:
+				if (event.key == K_SPACE):
+					FPS = 2
 
 		#To check Collision with edges
 		if worm[HEAD]['x'] == -1 or worm[HEAD]['x'] == cell_width or worm[HEAD]['y'] == -1 or worm[HEAD]['y'] == cell_height:
