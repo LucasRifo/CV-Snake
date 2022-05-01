@@ -411,6 +411,7 @@ def runGame():
     global Global_Event_List
 
     while True:
+        FPS = 2
         Interface()  # get events from camera controller
         for event in Global_Event_List.get():
             if event.type == QUIT:
@@ -426,7 +427,10 @@ def runGame():
                     direction = DOWN
                 elif event.key == K_ESCAPE:
                     terminate()
-                if (event.key == K_SPACE):
+            elif event.type == pygame.TEXTINPUT:
+                if (event.text == ' '):
+                    FPS = 8
+                    """
                     FPS_trigger = True
             if (event.type == KEYUP):
                 if (event.key == K_SPACE):
@@ -434,7 +438,7 @@ def runGame():
             if FPS_trigger == True:
                 FPS = 8
             elif FPS_trigger == False:
-                FPS = 2
+                FPS = 2"""
 
         # To check Collision with screen edges
         if worm[HEAD]['x'] == -1 or worm[HEAD]['x'] == cell_width or worm[HEAD]['y'] == -1 or worm[HEAD][
@@ -715,7 +719,7 @@ def Interface():
             pygame.event.post(pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741903, 'mod': 0, 'scancode': 79, 'window': None}))
         elif instruction == "SPACE":
             #pygame.event.post()
-            Global_Event_List.post(pygame.event.Event(pygame.KEYDOWN, {'unicode': ' ', 'key': 32, 'mod': 0, 'scancode': 44, 'window': None}))
+            Global_Event_List.post(pygame.event.Event(pygame.TEXTINPUT, {'text': ' ', 'window': None}))
     return
 
 
