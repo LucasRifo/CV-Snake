@@ -130,6 +130,8 @@ def Camera_Detection(a,b):
             Sets radius of circle for covering the object
         window_size: int
             Sets window size of grabbed frame
+        
+        center_of_frame
     """
     CLOCK_2 = Clock()
 
@@ -138,7 +140,6 @@ def Camera_Detection(a,b):
 
     blueLower = np.array([90, 40, 0])
     blueUpper = np.array([100, 240, 255])
-
     
     video = cv2.VideoCapture(0);
     current_key = set()
@@ -191,16 +192,6 @@ def Camera_Detection(a,b):
         cover = cv2.dilate(cover, None, iterations=2)
         cover2 = cv2.dilate(cover2, None, iterations=2)
 
-        """
-        Here we divide the frame into two halves one for up and down keys
-        and other half is for left and right keys by using indexing
-        ---------
-        Not used at the moment, might recycle it later if necessary
-        """
-
-        left_cover = cover[:, 0:width // 2, ]
-        right_cover = cover[:, width // 2:, ]
-
         center_of_frame = [width / 2, height / 2]
 
         """
@@ -228,7 +219,6 @@ def Camera_Detection(a,b):
                                         cv2.RETR_EXTERNAL,
                                         cv2.CHAIN_APPROX_SIMPLE)
         blue_contour = extract_contour(blue_contour)
-        centre2 = None
 
         """
         Starts looping if at least one blue contour or centre is
@@ -240,25 +230,15 @@ def Camera_Detection(a,b):
             ((x, y), r) = cv2.minEnclosingCircle(c)
             M = cv2.moments(c)
             # below is formula for calculating centroid of circle
-            centre = (int(M["m10"] / (M["m00"] + 0.000001)), int(M["m01"] / (M["m00"] + 0.000001)))
+            centre2 = (int(M["m10"] / (M["m00"] + 0.000001)), int(M["m01"] / (M["m00"] + 0.000001)))
 
             # if the radius meets a minimum size to avoid small distraction of same color then mark it in frame
             if r > radius_of_circle:
                 # draw the circle and centroid on the frame,
                 cv2.circle(grabbed_frame, (int(x), int(y)), int(r),
                            (0, 255, 0), 2)
-                cv2.circle(grabbed_frame, centre, 5, (0, 255, 0), -1)
-                #if not space:
-                #    #pyautogui.keyDown("space")
-                #    current_key.add(space)
-                #    keyPressed = True
-                #    space = True
-            else:
-                space = False
-        #print(space)
-        #if not space:
-            #pass
-            #pyautogui.keyUp("space")
+                cv2.circle(grabbed_frame, centre2, 5, (0, 255, 0), -1)
+                a.put("SPACE")
 
         """
         Starts looping if at least one green contour or centre is
@@ -337,19 +317,11 @@ def Camera_Detection(a,b):
                 if key != "space":
                     #ReleaseKey(key)
                     current_key = set()
-        # We use hexadecimal value 0xFF here because when we will press q then it can return other values also if your numlock is activated
-        k = cv2.waitKey(1) & 0xFF
-
-        # Press 'q' to stop the loop
 
         if not b.empty():
             if b.get() == "END":
                 break
     return
-
-
-
-
 
 def main():
     """
@@ -402,7 +374,6 @@ def runGame():
     starty = random.randint(5, cell_height - 6)
     global worm
     global FPS
-    FPS_trigger = False
     worm = [{'x': startx, 'y': starty}, {'x': startx - 1, 'y': starty}, {'x': startx - 2, 'y': starty}]
     direction = UP
 
@@ -429,7 +400,7 @@ def runGame():
                     terminate()
             elif event.type == pygame.TEXTINPUT:
                 if (event.text == ' '):
-                    FPS = 8
+                    FPS = 5
                     """
                     FPS_trigger = True
             if (event.type == KEYUP):
@@ -498,15 +469,6 @@ def drawPressKeyMsg():
     pressKeyRect.center = (Width_window - 200, height_window - 100)
     SCREEN.blit(pressKeyText, pressKeyRect)
 
-
-def drawSettingsMsg():
-    """
-    Not used ATM
-    """
-    SCREEN.blit(SETTINGSBUTTON,
-                (Width_window - SETTINGSBUTTON.get_width(), height_window - SETTINGSBUTTON.get_height()))
-
-
 def checkForKeyPress():
     """
     Handler that checks for any key being pressed or released
@@ -514,7 +476,6 @@ def checkForKeyPress():
         ----------
         keyUpEvents: list[int]
             List of pygame events
-
         Returns
         -------
         key: Any
@@ -690,19 +651,24 @@ def drawGrid():
 
 def Interface():
     """
-    
+    Links events between Camera_Detection and the Game's processes
+        Parameters
+        ----------
+        'a': Queue
+            Recieved information from Camera_Detection
+        Global_Event_List: type:alias
+            List of pygame global events
+        a_content: List
+            List of 'a' contents as cache
     """
     global a
     global Global_Event_List
-
-    #print("interfas")
 
     a_content = []
     while not a.empty():
         a_content.append(a.get())
     for instruction in a_content:
         if instruction == "UP":
-
             #add keydown type
             Global_Event_List.post(pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741906, 'mod': 0, 'scancode': 82, 'window': None}))
 
@@ -737,7 +703,5 @@ if __name__ == '__main__':
     while not b.empty():
         print("Waiting for camera")
         print(b.get()) #cam ready signal
-
-
 
     main()
