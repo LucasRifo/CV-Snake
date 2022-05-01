@@ -21,7 +21,9 @@ from pygame.locals import *
 from settingsSnakeFun import *
 import multiprocessing as mp
 import math
+import numpy as np
 import cv2
+from pygame.time import Clock
 
 def angle(center_of_frame: list, center: list):
     """
@@ -33,7 +35,6 @@ def angle(center_of_frame: list, center: list):
             Coordinates [x,y] of the window's centre
         centre: List
             Coordinates [x,y] of the object's centre
-
         Return
         ------
         angle: float
@@ -87,7 +88,6 @@ def extract_contour(contours):
         ----------
         contours: List
             List of detected objects
-
         Return
         ------
         contours: List
@@ -108,25 +108,20 @@ def extract_contour(contours):
     return contours
 
 
-def funcion_coso(a,b):
-    import numpy as np
-    import cv2
-    #import pygame
-    from pygame.time import Clock
-
-    CLOCK_2 = Clock()
-
-    greenLower = np.array([51, 19, 90])
-    greenUpper = np.array([80, 250, 250])
-
-    blueLower = np.array([90, 40, 0])
-    blueUpper = np.array([100, 240, 255])
-
+def Camera_Detection(a,b):
     """
     Set the initial values of certains parameters to use later
     in the code
         Parameters
         ----------
+        greenLower: np.array
+            Lower hsv boundary for green color detection
+        greenUpper: np.array
+            Upper hsv boundary for green color detection
+        blueLower: np.array
+            Lower hsv boundary for blue color detection
+        blueUpper: np.array
+            Upper hsv boundary for blue color detection
         video: Variable
             A variable to capture the real time video of our webcam
         current_key: Variable
@@ -136,6 +131,15 @@ def funcion_coso(a,b):
         window_size: int
             Sets window size of grabbed frame
     """
+    CLOCK_2 = Clock()
+
+    greenLower = np.array([51, 19, 90])
+    greenUpper = np.array([80, 250, 250])
+
+    blueLower = np.array([90, 40, 0])
+    blueUpper = np.array([100, 240, 255])
+
+    
     video = cv2.VideoCapture(0);
     current_key = set()
     radius_of_circle = 15
@@ -160,7 +164,6 @@ def funcion_coso(a,b):
         Above is the basic syntax of gaussianblur attribute. Our
         code's input array is grabbed_frame, ksize=(11,11) and
         sigmaY=0
-
         The official documentation where you will find the purpose
         of each element in detail is in this link
         https://docs.opencv.org/3.1.0/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
@@ -192,7 +195,7 @@ def funcion_coso(a,b):
         Here we divide the frame into two halves one for up and down keys
         and other half is for left and right keys by using indexing
         ---------
-        Not used at the moment, might recycle it later
+        Not used at the moment, might recycle it later if necessary
         """
 
         left_cover = cover[:, 0:width // 2, ]
@@ -212,10 +215,10 @@ def funcion_coso(a,b):
 
         """
         Note:
-        RETR_EXTERNAL is for exctracting only the outer contour in
-        heirarchy and we use CHAIN_APPROX_SIMPLE here to detect only
-        the main point of contour instead of all the boundary point
-        https://docs.opencv.org/3.4/d9/d8b/tutorial_py_contours_hierarchy.html
+            RETR_EXTERNAL is for exctracting only the outer contour in
+            heirarchy and we use CHAIN_APPROX_SIMPLE here to detect only
+            the main point of contour instead of all the boundary point
+            https://docs.opencv.org/3.4/d9/d8b/tutorial_py_contours_hierarchy.html
         """
         """
         Finds contours in the frame to find the shape outline of the
@@ -229,7 +232,8 @@ def funcion_coso(a,b):
 
         """
         Starts looping if at least one blue contour or centre is
-        found in the frame"""
+        found in the frame
+        """
         if len(blue_contour) > 0:
             # for creating a circular contour with centroid
             c = max(blue_contour, key=cv2.contourArea)
@@ -320,8 +324,8 @@ def funcion_coso(a,b):
         """
         grabbed_frame_copy = grabbed_frame.copy()
         """
-        Below code is for creating the blue rectangular box, we
-        should recycle this to draw the direction threshholds
+        Below code is for creating the blue rectangular box
+            we should recycle this to draw the direction threshholds
         """
         grabbed_frame_copy = cv2.rectangle(grabbed_frame_copy, (0, height // 2 - window_size // 2),
                                            (width, height // 2 + window_size // 2), (255, 0, 0), 2)
@@ -348,6 +352,17 @@ def funcion_coso(a,b):
 
 
 def main():
+    """
+    Main function for game initialization
+        Parameters
+        ----------
+        CLOCK: (class) CLOCK
+            pygame clock to run the game
+        SCREEN: (module) display
+            pygame module for game visualization
+        FONT: (module) font
+            pygame module for message visualization
+    """
     global CLOCK, SCREEN, FONT
 
     pygame.init()
@@ -364,7 +379,25 @@ def main():
 
 
 def runGame():
-    # to set a random starting point in the game
+    """
+    Main function for game control and execution
+        Parameters
+        ----------
+        startx: int
+            Random starting horizontal position
+        starty: int
+            Random starting vertical position
+        worm: list
+            Player's position
+        FPS: int
+            Ingame frames per second
+        FPS_trigger: boolean
+            Designated Boolean for game acceleration
+        direction: variable
+            Snake's facing direction
+        food: dict[str, int]
+            Location of the snake's food
+    """
     startx = random.randint(5, cell_width - 6)
     starty = random.randint(5, cell_height - 6)
     global worm
@@ -377,17 +410,12 @@ def runGame():
 
     global Global_Event_List
 
-
-
-
-
     while True:
         Interface()  # get events from camera controller
         for event in Global_Event_List.get():
             if event.type == QUIT:
                 terminate()
             elif event.type == KEYDOWN:
-                #print(event)
                 if (event.key == K_LEFT or event.key == K_a) and direction != RIGHT:
                     direction = LEFT
                 elif (event.key == K_RIGHT or event.key == K_d) and direction != LEFT:
@@ -408,7 +436,7 @@ def runGame():
             elif FPS_trigger == False:
                 FPS = 2
 
-        # To check Collision with edges
+        # To check Collision with screen edges
         if worm[HEAD]['x'] == -1 or worm[HEAD]['x'] == cell_width or worm[HEAD]['y'] == -1 or worm[HEAD][
             'y'] == cell_height:
             return
@@ -434,7 +462,7 @@ def runGame():
             newHead = {'x': worm[HEAD]['x'] - 1, 'y': worm[HEAD]['y']}
         worm.insert(0, newHead)
 
-        # for drawing the game Screen
+        # For drawing the game Screen
         SCREEN.fill(BGCOLOR)
         drawGrid()
         drawWorm(worm)
@@ -444,12 +472,23 @@ def runGame():
         CLOCK.tick(FPS)
 
 
-# to calculate the score of the game
 def getTotalScore():
+    """
+    Calculates the game's score based on the snake's length
+    """
     return ((len(worm) - 3) * 10)
 
 
 def drawPressKeyMsg():
+    """
+    Game's start screen
+        Parameters
+        ----------
+        pressKeyText: Surface
+            Font and text on the game's start screen
+        pressKeyRect: Rect
+            Location of text on the game's start screen
+    """
     pressKeyText = FONT.render('Tap to play', True, GREEN)
     pressKeyRect = pressKeyText.get_rect()
     pressKeyRect.center = (Width_window - 200, height_window - 100)
@@ -457,11 +496,26 @@ def drawPressKeyMsg():
 
 
 def drawSettingsMsg():
+    """
+    Not used ATM
+    """
     SCREEN.blit(SETTINGSBUTTON,
                 (Width_window - SETTINGSBUTTON.get_width(), height_window - SETTINGSBUTTON.get_height()))
 
 
 def checkForKeyPress():
+    """
+    Handler that checks for any key being pressed or released
+        Parameters
+        ----------
+        keyUpEvents: list[int]
+            List of pygame events
+
+        Returns
+        -------
+        key: Any
+            Key being pressed or released
+    """
     if len(pygame.event.get(QUIT)) > 0:
         terminate()
 
@@ -474,6 +528,17 @@ def checkForKeyPress():
 
 
 def showStartScreen():
+    """
+    Shows the game's start screen
+        Parameters
+        ----------
+        titlefont: Font
+            Font of the game's start screen
+        titleText: Surface
+            Text on the game's start screen
+        titleTextRect:
+            Location of text on the game's start screen
+    """
     titlefont = pygame.font.Font('freesansbold.ttf', 100)
     titleText = titlefont.render('SNAKE GAME', True, RED)
     while True:
@@ -491,6 +556,9 @@ def showStartScreen():
 
 
 def terminate():
+    """
+    Terminates the game
+    """
     pygame.quit()
     global b
     b.put("END")
@@ -498,10 +566,34 @@ def terminate():
 
 
 def getRandomLocation():
+    """
+    Gets a random location for new food
+        Returns
+        -------
+        Set{int,int}
+            Random coordinates for new food
+    """
     return {'x': random.randint(0, cell_width - 1), 'y': random.randint(0, cell_height - 1)}
 
 
 def showGameOverScreen():
+    """
+    Shows game over screen upon death
+        Parameters
+        ----------
+        gameOverFont: Font
+            Font of 'game over' text
+        gameOverText: Surface
+            'game over' text
+        gameOverRect: Rect
+            Location of 'game over' text on the screen
+        totalscoreFont: Font
+            Font of 'total score' text
+        totalscoreText: Surface
+            'total score' text
+        totalscoreRect: Rect
+            Location of 'total score' text on screen
+    """
     gameOverFont = pygame.font.Font('freesansbold.ttf', 100)
     gameOverText = gameOverFont.render('Game Over', True, GREEN)
     gameOverRect = gameOverText.get_rect()
@@ -526,6 +618,15 @@ def showGameOverScreen():
 
 
 def drawScore(score):
+    """ 
+    Shows the game's total score
+        Parameters
+        ----------
+        gameOverText: Surface
+            'Total score' text
+        gameOverRect: Rect
+            Location of 'Total score' text on the screen
+    """
     scoreText = FONT.render(f'Score: {score}', True, GREEN)
     scoreRect = scoreText.get_rect()
     scoreRect.center = (Width_window - 100, 30)
@@ -533,6 +634,15 @@ def drawScore(score):
 
 
 def drawWorm(worm):
+    """ 
+    Draws the Snake on screen
+        Parameters
+        ----------
+        x: Any
+            Horizontal position of the snake
+        y: Any
+            Vertical position of the snake
+    """
     x = worm[HEAD]['x'] * size_cell
     y = worm[HEAD]['y'] * size_cell
     wormHeadRect = pygame.Rect(x, y, size_cell, size_cell)
@@ -546,6 +656,15 @@ def drawWorm(worm):
 
 
 def drawfood(coord):
+    """ 
+    Draws the Food on screen
+        Parameters
+        ----------
+        x: Any
+            Horizontal position of the Food
+        y: Any
+            Vertical position of the Food
+    """
     x = coord['x'] * size_cell
     y = coord['y'] * size_cell
     appleRect = pygame.Rect(x, y, size_cell, size_cell)
@@ -553,6 +672,9 @@ def drawfood(coord):
 
 
 def drawGrid():
+    """ 
+    Draws the Grid on screen
+    """
     for x in range(0, Width_window, size_cell):
         pygame.draw.line(SCREEN, RED, (x, 0), (x, height_window))
     for y in range(0, height_window, size_cell):
@@ -563,10 +685,13 @@ def drawGrid():
 
 
 def Interface():
+    """
+    
+    """
     global a
     global Global_Event_List
 
-    print("interfas")
+    #print("interfas")
 
     a_content = []
     while not a.empty():
@@ -591,10 +716,6 @@ def Interface():
         elif instruction == "SPACE":
             #pygame.event.post()
             Global_Event_List.post(pygame.event.Event(pygame.KEYDOWN, {'unicode': ' ', 'key': 32, 'mod': 0, 'scancode': 44, 'window': None}))
-
-
-
-
     return
 
 
@@ -604,13 +725,13 @@ if __name__ == '__main__':
 
     a = mp.Queue()
     b = mp.Queue()
-    p = mp.Process(target=funcion_coso, args=(a,b))
+    p = mp.Process(target=Camera_Detection, args=(a,b))
     p.start()
 
     Global_Event_List = pygame.event
 
     while not b.empty():
-        print("Whaiting for camera")
+        print("Waiting for camera")
         print(b.get()) #cam ready signal
 
 
