@@ -6,6 +6,7 @@ For proper execution, it is necessary to install the following libraries first:
 - pygame
 - cv2
 - numpy
+
 after this it is only necessary to have a camera activated and run the file "SnakeGame.py" on the terminal.
 
 How to Play: 
