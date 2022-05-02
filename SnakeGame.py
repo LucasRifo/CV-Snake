@@ -317,7 +317,10 @@ def Camera_Detection(a,b):
                 if key != "space":
                     #ReleaseKey(key)
                     current_key = set()
-
+        
+        # We don't know why, but appartently the absense of this line will crash the Camera Detection Window
+        k = cv2.waitKey(1) & 0xFF
+        
         if not b.empty():
             if b.get() == "END":
                 break
