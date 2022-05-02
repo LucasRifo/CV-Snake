@@ -23,4 +23,4 @@ How to Play:
 4) You can combine direction controls and acceleration with both objects at the same time.
 5) Press "ESC" or close the snake window to close the game and the camera detection window
 
->Written by Lucas Rifo an Christopher Pavez
+>Written by Lucas Rifo and Christopher Pavez
