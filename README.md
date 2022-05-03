@@ -2,14 +2,14 @@
 Snake game in pygame instructions.
 
 ## How to run the code:
-In order to play the game you need to install the following libraries first:
+In order to play the game you need to either install the following pygame libraries and run SnakeGame.py:
 - pygame
 - cv2
 - numpy
 
-You can also use poetry for quick installation
+Or downloadand run the poetry files 
 
-After installing this libraries it is only necessary to have a camera activated and run the file "SnakeGame.py" on the terminal.
+After installing the game you need to have a camera plugged in before running it.
 Be sure you don´t have noticeable blue or green objects on the background, otherwise the game might detect them as input
 If you don´t have a camera, you can always play with your keyboard
 
