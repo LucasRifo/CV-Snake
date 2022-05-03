@@ -1,0 +1,487 @@
+Index: SnakeGame.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Copyright @ 2020 ABCOM Information Systems Pvt. Ltd. All Rights Reserved.\r\n#\r\n# Licensed under the Apache License, Version 2.0 (the \"License\");\r\n# you may not use this file except in compliance with the License.\r\n# You may obtain a copy of the License at\r\n#\r\n#     http://www.apache.org/licenses/LICENSE-2.0\r\n#\r\n# Unless required by applicable law or agreed to in writing, software\r\n# distributed under the License is distributed on an \"AS IS\" BASIS,\r\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\r\n# See the License for the specific language governing permissions and\r\n# limitations under the License.\r\n# ==============================================================================\r\n\r\n\r\nimport random\r\nimport pygame\r\nimport sys\r\nfrom pygame.locals import *\r\nfrom settingsSnakeFun import *\r\n\r\ndef main():\r\n\tglobal CLOCK, SCREEN, FONT\r\n\r\n\tpygame.init()\r\n\tCLOCK = pygame.time.Clock()\r\n\tSCREEN = pygame.display.set_mode((Width_window, height_window))\r\n\tFONT = pygame.font.Font('freesansbold.ttf', 18)\r\n\tpygame.display.set_caption('Snake Game')\r\n\r\n\tshowStartScreen()\r\n\twhile True:\r\n\r\n\t\trunGame()\r\n\r\n\t\tshowGameOverScreen()\r\n\r\ndef runGame():\r\n\t#to set a random starting point in the game\r\n\tstartx = random.randint(5, cell_width - 6)\r\n\tstarty = random.randint(5, cell_height - 6)\r\n\tglobal worm\r\n\tworm = [{'x' : startx, 'y' : starty}, {'x': startx - 1, 'y':starty}, {'x':startx - 2, 'y':starty}]\r\n\tdirection = UP\r\n\r\n\tfood = getRandomLocation()\r\n\r\n\twhile True:\r\n\t\tfor event in pygame.event.get():\r\n\t\t\tif event.type == QUIT:\r\n\t\t\t\tterminate()\r\n\t\t\telif event.type == KEYDOWN:\r\n\t\t\t\tif (event.key == K_LEFT or event.key == K_a) and direction != RIGHT:\r\n\t\t\t\t\tdirection = LEFT\r\n\t\t\t\telif (event.key == K_RIGHT or event.key == K_d) and direction != LEFT:\r\n\t\t\t\t\tdirection = RIGHT\r\n\t\t\t\telif (event.key == K_UP or event.key == K_w) and direction != DOWN:\r\n\t\t\t\t\tdirection = UP\r\n\t\t\t\telif (event.key == K_DOWN or event.key == K_s) and direction != UP:\r\n\t\t\t\t\tdirection = DOWN\r\n\t\t\t\telif event.key == K_ESCAPE:\r\n\t\t\t\t\tterminate()\r\n\r\n\t\t#To check Collision with edges\r\n\t\tif worm[HEAD]['x'] == -1 or worm[HEAD]['x'] == cell_width or worm[HEAD]['y'] == -1 or worm[HEAD]['y'] == cell_height:\r\n\t\t\treturn\r\n\t\t#To check Collision with snake's body\r\n\t\tfor wormBody in worm[1:]:\r\n\t\t\tif wormBody['x'] == worm[HEAD]['x'] and wormBody['y'] == worm[HEAD]['y']:\r\n\t\t\t\treturn\r\n\t\t#Check Collision with food\r\n\t\tif worm[HEAD]['x'] == food['x'] and worm[HEAD]['y'] == food['y']:\r\n\r\n\t\t\tfood = getRandomLocation()\r\n\t\telse:\r\n\t\t\tdel worm[-1]\r\n\r\n#To move the Snake\r\n\t\tif direction == UP:\r\n\t\t\tnewHead = {'x': worm[HEAD]['x'], 'y': worm[HEAD]['y'] - 1}\r\n\t\telif direction == DOWN:\r\n\t\t\tnewHead = {'x': worm[HEAD]['x'], 'y': worm[HEAD]['y'] + 1}\r\n\t\telif direction == RIGHT:\r\n\t\t\tnewHead = {'x': worm[HEAD]['x'] + 1, 'y': worm[HEAD]['y']}\r\n\t\telif direction == LEFT:\r\n\t\t\tnewHead = {'x': worm[HEAD]['x'] - 1, 'y': worm[HEAD]['y']}\r\n\t\tworm.insert(0, newHead)\r\n\r\n#for drawing the game Screen\r\n\t\tSCREEN.fill(BGCOLOR)\r\n\t\tdrawGrid()\r\n\t\tdrawWorm(worm)\r\n\t\tdrawfood(food)\r\n\t\tdrawScore((len(worm) - 3) * 10)\r\n\t\tpygame.display.update()\r\n\t\tCLOCK.tick(FPS)\r\n#to calculate the score of the game\r\ndef getTotalScore():\r\n\treturn ((len(worm) - 3) * 10)\r\n\r\ndef drawPressKeyMsg():\r\n\tpressKeyText = FONT.render('Tap to play', True,GREEN)\r\n\tpressKeyRect = pressKeyText.get_rect()\r\n\tpressKeyRect.center = (Width_window - 200, height_window - 100)\r\n\tSCREEN.blit(pressKeyText, pressKeyRect)\r\n\r\ndef drawSettingsMsg():\r\n\tSCREEN.blit(SETTINGSBUTTON, (Width_window - SETTINGSBUTTON.get_width(), height_window - SETTINGSBUTTON.get_height()))\r\n\r\ndef checkForKeyPress():\r\n\tif len(pygame.event.get(QUIT)) > 0:\r\n\t\tterminate()\r\n\r\n\tkeyUpEvents = pygame.event.get(KEYUP)\r\n\tif len(keyUpEvents) == 0:\r\n\t\treturn None\r\n\tif keyUpEvents[0].key == K_ESCAPE:\r\n\t\tterminate()\r\n\treturn keyUpEvents[0].key\r\n\r\ndef showStartScreen():\r\n\ttitlefont = pygame.font.Font('freesansbold.ttf', 100)\r\n\ttitleText = titlefont.render('SNAKE GAME', True,RED)\r\n\twhile True:\r\n\t\tSCREEN.fill(BGCOLOR)\r\n\t\ttitleTextRect = titleText.get_rect()\r\n\t\ttitleTextRect.center = (Width_window / 2, height_window / 2)\r\n\t\tSCREEN.blit(titleText, titleTextRect)\r\n\r\n\t\tdrawPressKeyMsg()\r\n\t\tif checkForKeyPress():\r\n\t\t\tpygame.event.get()\r\n\t\t\treturn\r\n\t\tpygame.display.update()\r\n\t\tCLOCK.tick(FPS)\r\n\r\ndef terminate():\r\n\tpygame.quit()\r\n\tsys.exit()\r\n\r\ndef getRandomLocation():\r\n\treturn {'x': random.randint(0, cell_width - 1), 'y': random.randint(0, cell_height - 1)}\r\n\r\ndef showGameOverScreen():\r\n\tgameOverFont = pygame.font.Font('freesansbold.ttf', 100)\r\n\tgameOverText = gameOverFont.render('Game Over', True, GREEN)\r\n\tgameOverRect = gameOverText.get_rect()\r\n\ttotalscoreFont = pygame.font.Font('freesansbold.ttf', 40)\r\n\ttotalscoreText = totalscoreFont.render('Total Score: %s' % (getTotalScore()), True, YELLOW)\r\n\ttotalscoreRect = totalscoreText.get_rect()\r\n\ttotalscoreRect.midtop = (Width_window /2, 150)\r\n\tgameOverRect.midtop = (Width_window /2, 30)\r\n\tSCREEN.fill(BGCOLOR)\r\n\tSCREEN.blit(gameOverText, gameOverRect)\r\n\tSCREEN.blit(totalscoreText, totalscoreRect)\r\n\tdrawPressKeyMsg()\r\n\tpygame.display.update()\r\n\tpygame.time.wait(1000)\r\n\tcheckForKeyPress()\r\n\r\n\twhile True:\r\n\t\tif checkForKeyPress():\r\n\t\t\tpygame.event.get()\r\n\t\t\treturn\r\n\r\ndef drawScore(score):\r\n\tscoreText = FONT.render('Score: %s' % (score), True, GREEN)\r\n\tscoreRect = scoreText.get_rect()\r\n\tscoreRect.center = (Width_window  - 100, 30)\r\n\tSCREEN.blit(scoreText, scoreRect)\r\n\r\ndef drawWorm(worm):\r\n\tx = worm[HEAD]['x'] * size_cell\r\n\ty = worm[HEAD]['y'] * size_cell\r\n\twormHeadRect = pygame.Rect(x, y, size_cell, size_cell)\r\n\tpygame.draw.rect(SCREEN, DARKGRAY, wormHeadRect)\r\n\r\n\tfor coord in worm[1:]:\r\n\t\tx = coord['x'] * size_cell\r\n\t\ty = coord['y'] * size_cell\r\n\t\twormSegmentRect = pygame.Rect(x, y, size_cell, size_cell)\r\n\t\tpygame.draw.rect(SCREEN, RED, wormSegmentRect)\r\n\r\ndef drawfood(coord):\r\n\tx = coord['x'] * size_cell\r\n\ty = coord['y'] * size_cell\r\n\tappleRect = pygame.Rect(x, y, size_cell, size_cell)\r\n\tpygame.draw.rect(SCREEN, DARKGREEN, appleRect)\r\n\r\ndef drawGrid():\r\n\tfor x in range(0, Width_window, size_cell):\r\n\t\tpygame.draw.line(SCREEN, RED, (x, 0), (x, height_window))\r\n\tfor y in range(0, height_window, size_cell):\r\n\t\tpygame.draw.line(SCREEN, RED, (0, y), (Width_window, y))\r\n\r\nif __name__ == '__main__':\r\n\tmain()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/SnakeGame.py b/SnakeGame.py
+--- a/SnakeGame.py	(revision ba438a3c2948a7de0fb7f23f0b085e7aa5ce70e4)
++++ b/SnakeGame.py	(date 1651158720703)
+@@ -15,10 +15,77 @@
+ 
+ 
+ import random
++import math
+ import pygame
+ import sys
+ from pygame.locals import *
+ from settingsSnakeFun import *
++from multiprocessing import Process, Queue
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++
++def Cam_Controller(a:Queue, b:Queue):
++
++	a.put(fun())
++
++	return
++
++
++def Angle(center_of_frame: list, center: list):
++	if center_of_frame[0] == center[0]:  # angulo 90 o 270
++		return 90 if center_of_frame[1] > center[1] else 270
++	elif center_of_frame[1] == center[1]:  # angulo 0 o 180
++		return 180 if center_of_frame[0] > center[0] else 0
++	elif center_of_frame[1] > center[1]:
++		return (
++			math.degrees(
++				math.atan(
++					abs(center_of_frame[1] - center[1])
++					/ abs(center_of_frame[0] - center[0])
++				)
++			)
++			if center_of_frame[0] < center[0]
++			else math.degrees(
++				math.atan(
++					-abs(center[1] - center_of_frame[1])
++					/ abs(center[0] - center_of_frame[0])
++				)
++			)
++				 + 180
++		)
++
++	elif center_of_frame[0] < center[0]:
++		return math.degrees(math.atan(-abs(
++			center[1] - center_of_frame[1]) / abs(
++			center[0] - center_of_frame[0])))
++	else:
++		return math.degrees(math.atan(abs(
++			center[1] - center_of_frame[1]) / abs(
++			center[0] - center_of_frame[0]))) + 180
++
++
++
++
++
++
++
++
++
+ 
+ def main():
+ 	global CLOCK, SCREEN, FONT
+@@ -29,6 +96,20 @@
+ 	FONT = pygame.font.Font('freesansbold.ttf', 18)
+ 	pygame.display.set_caption('Snake Game')
+ 
++	recividos = Queue()
++	enviados = Queue()
++	control = Process(target=Cam_Controller, args=(recividos,enviados))
++	control.start()
++
++	control.join()
++
++	print(recividos.get())
++
++
++
++
++
++
+ 	showStartScreen()
+ 	while True:
+ 
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	(date 1650986624683)
++++ b/.idea/.gitignore	(date 1650986624683)
+@@ -0,0 +1,8 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+Index: gameControl.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Copyright @ 2020 ABCOM Information Systems Pvt. Ltd. All Rights Reserved.\r\n#\r\n# Licensed under the Apache License, Version 2.0 (the \"License\");\r\n# you may not use this file except in compliance with the License.\r\n# You may obtain a copy of the License at\r\n#\r\n#     http://www.apache.org/licenses/LICENSE-2.0\r\n#\r\n# Unless required by applicable law or agreed to in writing, software\r\n# distributed under the License is distributed on an \"AS IS\" BASIS,\r\n# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\r\n# See the License for the specific language governing permissions and\r\n# limitations under the License.\r\n# ==============================================================================\r\n\r\n\r\n\r\nimport numpy as np\r\nimport math\r\nimport cv2\r\n\r\nimport pyautogui\r\nfrom directKeys import up, left, down, right\r\nfrom directKeys import PressKey, ReleaseKey\r\n\r\n\r\ndef Angle(center_of_frame: list, center: list):\r\n    # print (XYPropio,XYObjetivo)\r\n    if center_of_frame[0] == center[0]:  # angulo 90 o 270\r\n        if center_of_frame[1] > center[1]:\r\n            Angulo = 90\r\n        else:\r\n            Angulo = 270\r\n    elif center_of_frame[1] == center[1]:  # angulo 0 o 180\r\n        if center_of_frame[0] > center[0]:\r\n            Angulo = 180\r\n        else:\r\n            Angulo = 0\r\n    else:  # angulo intermedio\r\n        if center_of_frame[1] > center[1]:\r\n            if center_of_frame[0] < center[0]:\r\n                # print(\"cuadrante 1\",\"arma\")\r\n                Angulo = math.degrees(math.atan(abs(\r\n                    center_of_frame[1] - center[1]) / abs(\r\n                    center_of_frame[0] - center[0])))  # +/-\r\n            else:\r\n                # print(\"cuadrante 2\",\"arma\")\r\n                Angulo = math.degrees(math.atan(-abs(\r\n                    center[1] - center_of_frame[1]) / abs(\r\n                    center[0] - center_of_frame[0]))) + 180\r\n        else:\r\n            if center_of_frame[0] < center[0]:\r\n                # print(\"cuadrante 4\",\"arma\")\r\n                Angulo = math.degrees(math.atan(-abs(\r\n                    center[1] - center_of_frame[1]) / abs(\r\n                    center[0] - center_of_frame[0])))\r\n            else:\r\n                # print(\"cuadrante 3\",\"arma\")\r\n                Angulo = math.degrees(math.atan(abs(\r\n                    center[1] - center_of_frame[1]) / abs(\r\n                    center[0] - center_of_frame[0]))) + 180\r\n    return Angulo\r\n\r\n\r\n\r\n# write the range of lower and upper boundaries of the \"blue\" object after converting it to hsv region\r\nblueLower = np.array([51,19,90])\r\nblueUpper = np.array([80,250,250])\r\n#declare a variable to capture the real time video of our webcam\r\nvideo = cv2.VideoCapture(0); \r\n\r\n#set the initial values for parameter to use them later in the code\r\ncurrent_key = set()\r\n#set radius of circle for covering the object\r\nradius_of_circle = 15\r\n#set window size of grabbed frame\r\nwindow_size = 200\r\n#use Loop until OpenCV window is not closed\r\nwhile True:\r\n    keyPressed = False\r\n    keyPressed_lr= False\r\n    # to grab the current frame from webcam\r\n    _, grabbed_frame = video.read()\r\n    height,width = grabbed_frame.shape[:2]\r\n    '''GaussianBlur\t(\tInputArray \tsrc,\r\n                        OutputArray \tdst,\r\n                        Size \tksize,\r\n                        double \tsigmaX,\r\n                        double \tsigmaY = 0,\r\n                        int \tborderType = BORDER_DEFAULT)\t'''\r\n    #above is the basic syntax of gaussianblur attribute here in our code input array is grabbed_frame, ksize=(11,11) and sigmaY=0\r\n    #the official documentation where you will find the purpose of each element in detail is in below comment\r\n    #https://docs.opencv.org/3.1.0/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1\r\n    # blur the captured image to make the image smooth and then convert it in hsv color\r\n    #grabbed_frame = imutils.resize(grabbed_frame, width=600)\r\n    \r\n    grabbed_frame = cv2.resize(grabbed_frame, dsize=(600, height))\r\n    blur_frame = cv2.GaussianBlur(grabbed_frame, (11, 11), 0)\r\n    hsv_value = cv2.cvtColor(blur_frame, cv2.COLOR_BGR2HSV)\r\n\r\n    # create a cover for object so that you are able to detect the object easily without any\r\n    #  distraction by other details of image you are capturing\r\n    cover = cv2.inRange(hsv_value, blueLower, blueUpper)\r\n    #Erode the masked output\r\n    cover = cv2.erode(cover, None, iterations=2)\r\n    #Dilate the resultant image\r\n    cover = cv2.dilate(cover, None, iterations=2)\r\n    \r\n\r\n\r\n    # here we will divide the frame into two halves one for up and down keys\r\n    # and other half is for left and right keys by using indexing\r\n\r\n    left_cover = cover[:,0:width//2,]\r\n    right_cover = cover[:,width//2:,]\r\n\r\n    center_of_frame = [width/2,height/2]\r\n\r\n    #define a function to extract the countours from the list \r\n    def extract_contour(contours):\r\n        if len(contours) == 2:\r\n            contours = contours[0]\r\n            \r\n        elif len(contours) == 3:\r\n            contours = contours[1]\r\n\r\n        else:\r\n            raise Exception((\"Contours tuple must have length 2 or 3,\" \r\n            \"otherwise OpenCV changed their cv2.findContours return \"\r\n            \"signature. Refer to OpenCV's documentation \"\r\n            \"in that case\"))\r\n\r\n        return contours\r\n            \r\n    #contours in the left and right frame to find the shape outline of the object for left side\r\n    contour = cv2.findContours(cover.copy(),\r\n        cv2.RETR_EXTERNAL,\r\n        cv2.CHAIN_APPROX_SIMPLE)\r\n    #use the defined function to extract from contour_l\r\n    contour = extract_contour(contour)\r\n    centre = None\r\n#RETR_EXTERNAL is for exctracting only outer contour in heirarchy and we use CHAIN_APPROX_SIMPLE here to detect only main point of contour instead of all boundary point\r\n#https://docs.opencv.org/3.4/d9/d8b/tutorial_py_contours_hierarchy.html you can visit this site also for the same\r\n\r\n    # start looping if at least one contour or centre is found in left side of frame\r\n    if len(contour) > 0:\r\n        #for creating a circular contour with centroid\r\n        c = max(contour, key=cv2.contourArea)\r\n        ((x, y), r) = cv2.minEnclosingCircle(c)\r\n        M = cv2.moments(c)\r\n        #below is formula for calculating centroid of circle\r\n        centre = (int(M[\"m10\"] / (M[\"m00\"]+0.000001)), int(M[\"m01\"] / (M[\"m00\"]+0.000001)))\r\n\r\n        # if the radius meets a minimum size to avoid small distraction of same color then mark it in frame\r\n        if r > radius_of_circle:\r\n            # draw the circle and centroid on the frame,\r\n            cv2.circle(grabbed_frame, (int(x), int(y)), int(r),\r\n                (0, 255, 0), 2)\r\n            cv2.circle(grabbed_frame, centre, 5, (0, 255, 0), -1)\r\n\r\n           #set positions where left and right key will be detected\r\n\r\n            centre_angle = Angle(center_of_frame,centre)\r\n\r\n\r\n            #centre_angle >= 45 and centre_angle <= 135\r\n            if 45 < centre_angle < 145:\r\n                cv2.putText(grabbed_frame, 'arriba', (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n                pyautogui.press('up')\r\n                current_key.add(left)\r\n                keyPressed = True\r\n                keyPressed_lr = True\r\n            elif 145 < centre_angle < 215:\r\n                cv2.putText(grabbed_frame, 'derecha', (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n                pyautogui.press('right')\r\n                current_key.add(left)\r\n                keyPressed = True\r\n                keyPressed_lr = True\r\n            elif 215 < centre_angle or centre_angle < -40:\r\n                cv2.putText(grabbed_frame, 'abajo', (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n                pyautogui.press('down')\r\n                current_key.add(left)\r\n                keyPressed = True\r\n                keyPressed_lr = True\r\n            elif -40 < centre_angle < 40:\r\n                cv2.putText(grabbed_frame, 'izquierda', (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n                pyautogui.press('left')\r\n                current_key.add(left)\r\n                keyPressed = True\r\n                keyPressed_lr = True\r\n            #cv2.putText(grabbed_frame, str(centre_angle), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n            #cv2.putText(grabbed_frame, str(centre), (100, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)\r\n\r\n    # Below code will show the window through which you can see the detection of your object. I named it grabbed_frame\r\n    grabbed_frame_copy = grabbed_frame.copy()\r\n#below line is for creating the blue rectangular box and i set it for user reference because your arrow key will be pressed below and above it\r\n    grabbed_frame_copy = cv2.rectangle(grabbed_frame_copy,(0,height//2 - window_size //2),(width,height//2 + window_size //2),(255,0,0),2)\r\n    cv2.imshow(\"grabbed_frame\", grabbed_frame_copy)\r\n\r\n\r\n    #release all pressed keys to avoid any glitch\r\n\r\n\r\n    if not keyPressed and current_key!= 0:\r\n        for key in current_key:\r\n\r\n            ReleaseKey(key)\r\n            current_key=set()\r\n #we use hexadecimal value 0xFF here because when we will press q then it can return other values also if your numlock is activated\r\n    k = cv2.waitKey(1) & 0xFF\r\n\r\n    # to stop the loop\r\n    if k == ord(\"q\"):\r\n        break\r\n\r\nvideo.stop()\r\n# close all windows when you will stop capturing video\r\ncv2.destroyAllWindows()\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/gameControl.py b/gameControl.py
+--- a/gameControl.py	(revision ba438a3c2948a7de0fb7f23f0b085e7aa5ce70e4)
++++ b/gameControl.py	(date 1651158720693)
+@@ -14,7 +14,6 @@
+ # ==============================================================================
+ 
+ 
+-
+ import numpy as np
+ import math
+ import cv2
+@@ -25,75 +24,69 @@
+ 
+ 
+ def Angle(center_of_frame: list, center: list):
+-    # print (XYPropio,XYObjetivo)
+     if center_of_frame[0] == center[0]:  # angulo 90 o 270
+-        if center_of_frame[1] > center[1]:
+-            Angulo = 90
+-        else:
+-            Angulo = 270
++        return 90 if center_of_frame[1] > center[1] else 270
+     elif center_of_frame[1] == center[1]:  # angulo 0 o 180
+-        if center_of_frame[0] > center[0]:
+-            Angulo = 180
+-        else:
+-            Angulo = 0
+-    else:  # angulo intermedio
+-        if center_of_frame[1] > center[1]:
+-            if center_of_frame[0] < center[0]:
+-                # print("cuadrante 1","arma")
+-                Angulo = math.degrees(math.atan(abs(
+-                    center_of_frame[1] - center[1]) / abs(
+-                    center_of_frame[0] - center[0])))  # +/-
+-            else:
+-                # print("cuadrante 2","arma")
+-                Angulo = math.degrees(math.atan(-abs(
+-                    center[1] - center_of_frame[1]) / abs(
+-                    center[0] - center_of_frame[0]))) + 180
+-        else:
+-            if center_of_frame[0] < center[0]:
+-                # print("cuadrante 4","arma")
+-                Angulo = math.degrees(math.atan(-abs(
+-                    center[1] - center_of_frame[1]) / abs(
+-                    center[0] - center_of_frame[0])))
+-            else:
+-                # print("cuadrante 3","arma")
+-                Angulo = math.degrees(math.atan(abs(
+-                    center[1] - center_of_frame[1]) / abs(
+-                    center[0] - center_of_frame[0]))) + 180
+-    return Angulo
+-
++        return 180 if center_of_frame[0] > center[0] else 0
++    elif center_of_frame[1] > center[1]:
++        return (
++            math.degrees(
++                math.atan(
++                    abs(center_of_frame[1] - center[1])
++                    / abs(center_of_frame[0] - center[0])
++                )
++            )
++            if center_of_frame[0] < center[0]
++            else math.degrees(
++                math.atan(
++                    -abs(center[1] - center_of_frame[1])
++                    / abs(center[0] - center_of_frame[0])
++                )
++            )
++                 + 180
++        )
++
++    elif center_of_frame[0] < center[0]:
++        return math.degrees(math.atan(-abs(
++            center[1] - center_of_frame[1]) / abs(
++            center[0] - center_of_frame[0])))
++    else:
++        return math.degrees(math.atan(abs(
++            center[1] - center_of_frame[1]) / abs(
++            center[0] - center_of_frame[0]))) + 180
+ 
+ 
+ # write the range of lower and upper boundaries of the "blue" object after converting it to hsv region
+-blueLower = np.array([51,19,90])
+-blueUpper = np.array([80,250,250])
+-#declare a variable to capture the real time video of our webcam
+-video = cv2.VideoCapture(0); 
++blueLower = np.array([51, 19, 90])
++blueUpper = np.array([80, 250, 250])
++# declare a variable to capture the real time video of our webcam
++video = cv2.VideoCapture(0);
+ 
+-#set the initial values for parameter to use them later in the code
++# set the initial values for parameter to use them later in the code
+ current_key = set()
+-#set radius of circle for covering the object
++# set radius of circle for covering the object
+ radius_of_circle = 15
+-#set window size of grabbed frame
++# set window size of grabbed frame
+ window_size = 200
+-#use Loop until OpenCV window is not closed
++# use Loop until OpenCV window is not closed
+ while True:
+     keyPressed = False
+-    keyPressed_lr= False
++    keyPressed_lr = False
+     # to grab the current frame from webcam
+     _, grabbed_frame = video.read()
+-    height,width = grabbed_frame.shape[:2]
++    height, width = grabbed_frame.shape[:2]
+     '''GaussianBlur	(	InputArray 	src,
+                         OutputArray 	dst,
+                         Size 	ksize,
+                         double 	sigmaX,
+                         double 	sigmaY = 0,
+                         int 	borderType = BORDER_DEFAULT)	'''
+-    #above is the basic syntax of gaussianblur attribute here in our code input array is grabbed_frame, ksize=(11,11) and sigmaY=0
+-    #the official documentation where you will find the purpose of each element in detail is in below comment
+-    #https://docs.opencv.org/3.1.0/d4/d86/group__imgproc__filter.html#gaabe8c836e97159a9193fb0b11ac52cf1
+-    # blur the captured image to make the image smooth and then convert it in hsv color
+-    #grabbed_frame = imutils.resize(grabbed_frame, width=600)
+-    
++    # above is the basic syntax of gaussianblur attribute here in our code input array is grabbed_frame, ksize=(11,
++    # 11) and sigmaY=0 the official documentation where you will find the purpose of each element in detail is in
++    # below comment https://docs.opencv.org/3.1.0/d4/d86/group__imgproc__filter.html
++    # #gaabe8c836e97159a9193fb0b11ac52cf1 blur the captured image to make the image smooth and then convert it in hsv
++    # color grabbed_frame = imutils.resize(grabbed_frame, width=600)
++
+     grabbed_frame = cv2.resize(grabbed_frame, dsize=(600, height))
+     blur_frame = cv2.GaussianBlur(grabbed_frame, (11, 11), 0)
+     hsv_value = cv2.cvtColor(blur_frame, cv2.COLOR_BGR2HSV)
+@@ -101,69 +94,69 @@
+     # create a cover for object so that you are able to detect the object easily without any
+     #  distraction by other details of image you are capturing
+     cover = cv2.inRange(hsv_value, blueLower, blueUpper)
+-    #Erode the masked output
++    # Erode the masked output
+     cover = cv2.erode(cover, None, iterations=2)
+-    #Dilate the resultant image
++    # Dilate the resultant image
+     cover = cv2.dilate(cover, None, iterations=2)
+-    
+ 
+-
+     # here we will divide the frame into two halves one for up and down keys
+     # and other half is for left and right keys by using indexing
+ 
+-    left_cover = cover[:,0:width//2,]
+-    right_cover = cover[:,width//2:,]
++    left_cover = cover[:, 0:width // 2, ]
++    right_cover = cover[:, width // 2:, ]
+ 
+-    center_of_frame = [width/2,height/2]
++    center_of_frame = [width / 2, height / 2]
+ 
+-    #define a function to extract the countours from the list 
++
++    # define a function to extract the countours from the list
+     def extract_contour(contours):
+         if len(contours) == 2:
+             contours = contours[0]
+-            
++
+         elif len(contours) == 3:
+             contours = contours[1]
+ 
+         else:
+-            raise Exception(("Contours tuple must have length 2 or 3," 
+-            "otherwise OpenCV changed their cv2.findContours return "
+-            "signature. Refer to OpenCV's documentation "
+-            "in that case"))
++            raise Exception(("Contours tuple must have length 2 or 3,"
++                             "otherwise OpenCV changed their cv2.findContours return "
++                             "signature. Refer to OpenCV's documentation "
++                             "in that case"))
+ 
+         return contours
+-            
+-    #contours in the left and right frame to find the shape outline of the object for left side
++
++
++    # contours in the left and right frame to find the shape outline of the object for left side
+     contour = cv2.findContours(cover.copy(),
+-        cv2.RETR_EXTERNAL,
+-        cv2.CHAIN_APPROX_SIMPLE)
+-    #use the defined function to extract from contour_l
++                               cv2.RETR_EXTERNAL,
++                               cv2.CHAIN_APPROX_SIMPLE)
++    # use the defined function to extract from contour_l
+     contour = extract_contour(contour)
+     centre = None
+-#RETR_EXTERNAL is for exctracting only outer contour in heirarchy and we use CHAIN_APPROX_SIMPLE here to detect only main point of contour instead of all boundary point
+-#https://docs.opencv.org/3.4/d9/d8b/tutorial_py_contours_hierarchy.html you can visit this site also for the same
++    # RETR_EXTERNAL is for exctracting only outer contour in heirarchy and we use CHAIN_APPROX_SIMPLE here to detect
++    # only main point of contour instead of all boundary point
++    # https://docs.opencv.org/3.4/d9/d8b/tutorial_py_contours_hierarchy.html you can visit this site also for the same
+ 
+     # start looping if at least one contour or centre is found in left side of frame
+     if len(contour) > 0:
+-        #for creating a circular contour with centroid
++        # for creating a circular contour with centroid
+         c = max(contour, key=cv2.contourArea)
+         ((x, y), r) = cv2.minEnclosingCircle(c)
+         M = cv2.moments(c)
+-        #below is formula for calculating centroid of circle
+-        centre = (int(M["m10"] / (M["m00"]+0.000001)), int(M["m01"] / (M["m00"]+0.000001)))
++        # below is formula for calculating centroid of circle
++        centre = (int(M["m10"] / (M["m00"] + 0.000001)), int(M["m01"] / (M["m00"] + 0.000001)))
+ 
+         # if the radius meets a minimum size to avoid small distraction of same color then mark it in frame
+         if r > radius_of_circle:
+             # draw the circle and centroid on the frame,
+             cv2.circle(grabbed_frame, (int(x), int(y)), int(r),
+-                (0, 255, 0), 2)
++                       (0, 255, 0), 2)
+             cv2.circle(grabbed_frame, centre, 5, (0, 255, 0), -1)
+ 
+-           #set positions where left and right key will be detected
++            # set positions where left and right key will be detected
+ 
+-            centre_angle = Angle(center_of_frame,centre)
++            centre_angle = Angle(center_of_frame, centre)
+ 
+-
+-            #centre_angle >= 45 and centre_angle <= 135
++            # centre_angle >= 45 and centre_angle <= 135
+             if 45 < centre_angle < 145:
+                 cv2.putText(grabbed_frame, 'arriba', (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)
+                 pyautogui.press('up')
+@@ -188,25 +181,25 @@
+                 current_key.add(left)
+                 keyPressed = True
+                 keyPressed_lr = True
+-            #cv2.putText(grabbed_frame, str(centre_angle), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)
+-            #cv2.putText(grabbed_frame, str(centre), (100, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)
++            # cv2.putText(grabbed_frame, str(centre_angle), (100, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)
++            # cv2.putText(grabbed_frame, str(centre), (100, 200), cv2.FONT_HERSHEY_SIMPLEX, 1, (136, 8, 8), 2)
+ 
+     # Below code will show the window through which you can see the detection of your object. I named it grabbed_frame
+     grabbed_frame_copy = grabbed_frame.copy()
+-#below line is for creating the blue rectangular box and i set it for user reference because your arrow key will be pressed below and above it
+-    grabbed_frame_copy = cv2.rectangle(grabbed_frame_copy,(0,height//2 - window_size //2),(width,height//2 + window_size //2),(255,0,0),2)
++    # below line is for creating the blue rectangular box and i set it for user reference because your arrow key will
++    # be pressed below and above it
++    grabbed_frame_copy = cv2.rectangle(grabbed_frame_copy, (0, height // 2 - window_size // 2),
++                                       (width, height // 2 + window_size // 2), (255, 0, 0), 2)
+     cv2.imshow("grabbed_frame", grabbed_frame_copy)
+ 
+-
+-    #release all pressed keys to avoid any glitch
++    # release all pressed keys to avoid any glitch
+ 
+-
+-    if not keyPressed and current_key!= 0:
++    if not keyPressed and current_key != 0:
+         for key in current_key:
+-
+             ReleaseKey(key)
+-            current_key=set()
+- #we use hexadecimal value 0xFF here because when we will press q then it can return other values also if your numlock is activated
++            current_key = set()
++    # we use hexadecimal value 0xFF here because when we will press q then it can return other values also if your
++    # numlock is activated
+     k = cv2.waitKey(1) & 0xFF
+ 
+     # to stop the loop
+Index: .idea/CV-Snake.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/CV-Snake.iml b/.idea/CV-Snake.iml
+new file mode 100644
+--- /dev/null	(date 1650986623784)
++++ b/.idea/CV-Snake.iml	(date 1650986623784)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="PYTHON_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+new file mode 100644
+--- /dev/null	(date 1650986623838)
++++ b/.idea/modules.xml	(date 1650986623838)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/CV-Snake.iml" filepath="$PROJECT_DIR$/.idea/CV-Snake.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/inspectionProfiles/profiles_settings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/profiles_settings.xml b/.idea/inspectionProfiles/profiles_settings.xml
+new file mode 100644
+--- /dev/null	(date 1650986624056)
++++ b/.idea/inspectionProfiles/profiles_settings.xml	(date 1650986624056)
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <settings>
++    <option name="USE_PROJECT_PROFILE" value="false" />
++    <version value="1.0" />
++  </settings>
++</component>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1650986624106)
++++ b/.idea/vcs.xml	(date 1650986624106)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	(date 1650986623861)
++++ b/.idea/misc.xml	(date 1650986623861)
+@@ -0,0 +1,4 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (base)" project-jdk-type="Python SDK" />
++</project>
+\ No newline at end of file

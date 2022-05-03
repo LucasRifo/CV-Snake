@@ -1,16 +1,16 @@
 [tool.poetry]
-name = "cv-snake-poetry"
+name = "CV-Snake"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["rodrigo129 <rodrigoignacio.vargas@alumnos.ulagos.cl>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
 pygame = "^2.1.2"
-numpy = "^1.22.3"
 opencv-python = "^4.5.5"
 
 [tool.poetry.dev-dependencies]
+pytest = "^5.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

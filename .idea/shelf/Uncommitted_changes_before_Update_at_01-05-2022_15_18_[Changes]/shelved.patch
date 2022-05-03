@@ -1,0 +1,50 @@
+Index: test.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/test.py b/test.py
+new file mode 100644
+--- /dev/null	(date 1651380553809)
++++ b/test.py	(date 1651380553809)
+@@ -0,0 +1,40 @@
++import pygame
++
++pygame.init()
++
++run = True
++ventana = pygame.display.set_mode ( (400 , 400)  )
++
++punto = [200,200]
++while run:
++    for event in pygame.event.get():
++        print(event)
++        if event.type == pygame.KEYDOWN:
++            if event.key == pygame.K_RIGHT:
++                print("evento derecha precionado")
++                print("\n\n\n")
++                print(event)
++
++            if event.key == pygame.K_LEFT:
++                punto[0] = punto[0] - 10
++                punto[0] = punto[0] % 400
++
++
++            print(event)
++            if event.key == pygame.K_ESCAPE:
++                run = False
++        elif event.type == pygame.KEYUP:
++           if event.key == pygame.K_SPACE:
++               print(event)
++
++
++    pygame.event.post(pygame.event.Event(pygame.KEYDOWN, {'unicode': '', 'key': 1073741904, 'mod': 0, 'scancode': 80, 'window': None}))
++    ventana.fill([150, 150, 150])
++    pygame.draw.circle(ventana, [0, 0, 0], punto, 5)
++    pygame.display.update()
++            
++
++
++
++
++
