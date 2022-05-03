@@ -7,7 +7,9 @@ In order to play the game you need to either install the following pygame librar
 - cv2
 - numpy
 
-Or downloadand run the poetry files 
+Or download and run the poetry files
+
+Executing "run.sh" also creates the necessaary enviroment and runs the game
 
 After installing the game you need to have a camera plugged in before running it.
 Be sure you don´t have noticeable blue or green objects on the background, otherwise the game might detect them as input
