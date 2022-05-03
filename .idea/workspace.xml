@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bf6722c5-fb46-459c-a19c-b101a8b6ddca" name="Changes" comment="changes in the event that is inserted inside interface function for the &quot;SPACE&quot; option">
-      <change afterPath="$PROJECT_DIR$/failed.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
-    </list>
+    <list default="true" id="bf6722c5-fb46-459c-a19c-b101a8b6ddca" name="Changes" comment="changes in the event that is inserted inside interface function for the &quot;SPACE&quot; option" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -188,6 +185,7 @@
       <workItem from="1651428858814" duration="5589000" />
       <workItem from="1651451569349" duration="6775000" />
       <workItem from="1651546606817" duration="38000" />
+      <workItem from="1651549319142" duration="428000" />
     </task>
     <task id="LOCAL-00001" summary="gameControl incluido en subproceso, de necesitan pruebas">
       <created>1651381410163</created>
@@ -244,9 +242,9 @@
     </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/CV_Snake$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1651378965271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/CV_Snake$test.coverage" NAME="test Coverage Results" MODIFIED="1651433394861" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CV_Snake$gameControl.coverage" NAME="gameControl Coverage Results" MODIFIED="1651157873316" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/CV_Snake$game.coverage" NAME="game Coverage Results" MODIFIED="1651462618526" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/CV_Snake$scratch_1.coverage" NAME="scratch_1 Coverage Results" MODIFIED="1651378965271" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
+    <SUITE FILE_PATH="coverage/CV_Snake$test.coverage" NAME="test Coverage Results" MODIFIED="1651433394861" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
